@@ -174,39 +174,17 @@
       }
     }
 
-    // .chat {
-    //   flex: 2;
-    //   .chatInfo {
-    //     height: 50px;
-    //     background-color: rgba(14, 39, 199, 0.759);
-    //     display: flex;
-    //     align-items: center;
-    //     justify-content: space-between;
-    //     padding: 10px;
-    //     color: lightgray;
-    //   }
-    //   .chatIcons {
-    //     display: flex;
-    //     gap: 10px;
-
-    //     img {
-    //       height: 24px;
-    //       cursor: pointer;
-    //     }
-    //   }
     .chat {
       flex: 2;
-
       .chatInfo {
         height: 50px;
-        background-color: #5d5b8d;
+        background-color: rgba(14, 39, 199, 0.759);
         display: flex;
         align-items: center;
         justify-content: space-between;
         padding: 10px;
         color: lightgray;
       }
-
       .chatIcons {
         display: flex;
         gap: 10px;
@@ -218,21 +196,30 @@
       }
 
       .messages {
-        background-color: #ddddf7;
-        padding: 10px;
-        // height: 500px;
+        background-color: white;
+        // padding: 10px;
+        height: 20%;
+        // overflow: scroll;
+        .message {
+          display: flex;
+          gap: 20px;
+
+          .messageInfo {
+            img {
+              width: 40px;
+              height: 40px;
+              border-radius: 50%;
+              object-fit: cover;
+            }
+          }
+          .messageContent {
+            img {
+              width: 50%;
+            }
+          }
+        }
       }
-      //   .messages {
-      //     background-color: white;
-      //     padding: 10px;
-      //     height: calc(100% - 160px);
-      //     // overflow: scroll;
-      //   }
-      .messages {
-        background-color: #ddddf7;
-        padding: 10px;
-        height: calc(100% - 160px);
-      }
+
       .input {
         height: 50px;
         background-color: white;
@@ -245,14 +232,13 @@
           width: 100%;
           border: none;
           outline: none;
-          color: #2f2d52;
+          color: #5d5d8d;
           font-size: 18px;
 
           &::placeholder {
             color: lightgray;
           }
         }
-
         .send {
           display: flex;
           align-items: center;
@@ -260,54 +246,19 @@
 
           img {
             height: 24px;
+            // width: 10px;
+            // display: flex;
             cursor: pointer;
+            // overflow: hidden;
           }
-
           button {
             border: none;
             padding: 10px 15px;
-            color: white;
-            background-color: #8da4f1;
-            cursor: pointer;
+            color: wheat;
+            background-color: rgb(14, 113, 163);
           }
         }
       }
     }
   }
 }
-
-//       .input {
-//         height: 50px;
-//         background-color: white;
-//         padding: 10px;
-//         display: flex;
-//         align-items: center;
-//         justify-content: space-between;
-
-//         // input {
-//         //   width: 100%;
-//         //   border: none;
-//         //   outline: none;
-//         //   color: #5d5d8d;
-//         //   font-size: 18px;
-
-//         //   &::placeholder {
-//         //     color: lightgray;
-//         //   }
-//         // }
-//         // .send {
-//         //   display: flex;
-//         //   align-items: center;
-//         //   gap: 10px;
-
-//         //   .img {
-//         //     height: 10px;
-//         //     width: 10px;
-//         //     // display: flex;
-//         //     cursor: pointer;
-//         //   }
-//         // }
-//       }
-//     }
-//   }
-// }

@@ -9,7 +9,9 @@ const Input = () => {
         <img src={Attach} alt="" />
         <input type="file" style={{ display: "none" }} id="file" />
         <label htmlFor="file">
+          {/* whats label htmlfor for? opens up files?  */}
           <img src={Img} alt="" />
+          {/* use . for div's classnames in css files for normal elemenst just names!! like img button but .send  */}
         </label>
         <button>Send</button>
       </div>

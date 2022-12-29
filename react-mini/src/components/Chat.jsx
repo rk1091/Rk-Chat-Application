@@ -4,6 +4,7 @@ import Add from "../img/add.jpeg";
 import More from "../img/more.png";
 import Messages from "./Messages";
 import Input from "./Input";
+
 const Chat = () => {
   return (
     <div className="chat">
