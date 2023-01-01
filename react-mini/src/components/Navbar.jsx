@@ -7,7 +7,7 @@ const Navbar = () => {
       <div className="user">
         <img src={Add} alt="" />
         <span>John</span>
-        <button>Logout</button>
+        {/* <button onClick={()=> {SignOut()}}>Logout</button> */}
       </div>
     </div>
   );
