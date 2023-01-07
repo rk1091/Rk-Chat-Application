@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useContext } from "react";
 import Message from "./Message";
+import { ChatContext } from "../contextAPI/ChatContext";
 const Messages = () => {
+  const { data } = useContext(ChatContext);
   return (
     <div className="messages">
       <Message />
