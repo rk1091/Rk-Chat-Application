@@ -16,13 +16,15 @@ import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 
 const Input = () => {
   const [text, setText] = useState("");
+
   const [img, setImg] = useState(null);
 
   const { currentUser } = useContext(AuthContext);
   const { data } = useContext(ChatContext);
 
   const handleSend = async () => {
-    if (img) {
+    if (!text && !img) return;
+    else if (img) {
       const storageRef = ref(storage, uuid());
 
       const uploadTask = uploadBytesResumable(storageRef, img);
@@ -46,7 +48,12 @@ const Input = () => {
           });
         }
       );
+
+      setText("");
+      setImg(null);
     } else {
+      setText("");
+      setImg(null);
       await updateDoc(doc(db, "chats", data.chatId), {
         messages: arrayUnion({
           id: uuid(),
@@ -70,8 +77,6 @@ const Input = () => {
       },
       [data.chatId + ".date"]: serverTimestamp(),
     });
-    setText("");
-    setImg(null);
   };
 
   return (
