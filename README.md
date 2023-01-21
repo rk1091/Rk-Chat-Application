@@ -11,7 +11,7 @@ This is a React JS based chat application which updates in real time and uses Fi
 - Has a Login/ Register into Firebase with email and password.
 - Fetches real time private messages for each user.
 - Sorts chats based on latest message sent.
-- Good UI Design for each web page.
+- Good UI and App Design for each web page.
 - Makes use of Tailwind CSS.
 - Includes various functionalities like Search, auto scroll to latest message etc.
 - Allows you to send images, upload profile pictures.
