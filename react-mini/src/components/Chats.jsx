@@ -29,9 +29,11 @@ const Chats = () => {
     dispatch({ type: "CHANGE_USER", payload: u });
   };
 
+  const chatEntries = chats && typeof chats === "object" ? Object.entries(chats) : [];
   return (
     <div className="chats">
-      {Object.entries(chats)
+      {chatEntries.length>0 ? ( 
+        Object.entries(chats)
         ?.sort((a, b) => b[1].date - a[1].date)
         .map((chat) => (
           <div
@@ -44,7 +46,10 @@ const Chats = () => {
               <p>{chat[1].lastMessage?.text}</p>
             </div>
           </div>
-        ))}
+        ))
+      ): (
+        <p className="emptyChatsMessage">No chats found</p>
+      )}
     </div>
   );
 };
