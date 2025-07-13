@@ -19,44 +19,44 @@ const Register = () => {
     const displayName = e.target[0].value;
     const email = e.target[1].value;
     const password = e.target[2].value;
-    const file = e.target[3].files[0];
-    if (!file) {
-      alert("pls put an img u idiot!");
-      return;
-    }
+    // const file = e.target[3].files[0];
+    // if (!file) {
+    //   alert("pls put an img u idiot!");
+    //   return;
+    // }
     // console.log(email, password);
     try {
       const res = await createUserWithEmailAndPassword(auth, email, password);
       // console.log(res);
+      navigate("/");
+      // const storageRef = ref(storage, displayName);
 
-      const storageRef = ref(storage, displayName);
+      // const uploadTask = uploadBytesResumable(storageRef, file);
 
-      const uploadTask = uploadBytesResumable(storageRef, file);
-
-      uploadTask.on(
-        (error) => {
-          // Handle unsuccessful uploads
-          setErr(true);
-        },
-        () => {
-          // Handle successful uploads on complete
-          // For instance, get the download URL: https://firebasestorage.googleapis.com/...
-          getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
-            await updateProfile(res.user, {
-              displayName,
-              photoURL: downloadURL,
-            });
-            await setDoc(doc(db, "users", res.user.uid), {
-              uid: res.user.uid,
-              displayName,
-              email,
-              photoURL: downloadURL,
-            });
-            await setDoc(doc(db, "userChats", res.user.uid), {});
-            navigate("/");
-          });
-        }
-      );
+      // uploadTask.on(
+      //   (error) => {
+      //     // Handle unsuccessful uploads
+      //     setErr(true);
+      //   },
+      //   () => {
+      //     // Handle successful uploads on complete
+      //     // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+      //     getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+      //       await updateProfile(res.user, {
+      //         displayName,
+      //         photoURL: downloadURL,
+      //       });
+      //       await setDoc(doc(db, "users", res.user.uid), {
+      //         uid: res.user.uid,
+      //         displayName,
+      //         email,
+      //         photoURL: downloadURL,
+      //       });
+      //       await setDoc(doc(db, "userChats", res.user.uid), {});
+      //       navigate("/");
+      //     });
+      //   }
+      // );
     } catch (err) {
       setErr(true);
       // console.log(err.message.contains("email-already"));
