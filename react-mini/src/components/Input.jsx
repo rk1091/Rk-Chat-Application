@@ -100,6 +100,7 @@ const Input = () => {
           <img src={Img} alt="" />
           {/* use . for div's classnames in css files for normal elemenst just names!! like img button but .send  */}
         </label>
+        {/* create another func checkifaudio to check and handle audio msg exe else pass to flow to func handleSend */}
         <button onClick={handleSend}>Send</button>
       </div>
     </div>
