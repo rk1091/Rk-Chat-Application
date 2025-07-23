@@ -12,6 +12,7 @@ import {
 } from "firebase/firestore";
 import { db, storage } from "../firebase";
 import { v4 as uuid } from "uuid";
+import { increment } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 const Input = () => {
@@ -70,6 +71,7 @@ const Input = () => {
         text,
       },
       [data.chatId + ".date"]: serverTimestamp(),
+      [data.chatId + ".unreadCount"]: 0,
     });
 
     await updateDoc(doc(db, "userChats", data.user.uid), {
@@ -77,6 +79,7 @@ const Input = () => {
         text,
       },
       [data.chatId + ".date"]: serverTimestamp(),
+      [data.chatId + ".unreadCount"]: increment(1),
     });
   };
 

@@ -1,4 +1,4 @@
-import { doc, onSnapshot } from "firebase/firestore";
+import { doc, onSnapshot, updateDoc } from "firebase/firestore";
 import React, { useContext, useEffect, useState } from "react";
 import { db } from "../firebase";
 import { AuthContext } from "../contextAPI/AuthContext";
@@ -25,8 +25,21 @@ const Chats = () => {
 
   // console.log(Object.entries(chats));
 
-  const handleSelect = (u) => {
-    dispatch({ type: "CHANGE_USER", payload: u });
+  const handleSelect = async (userInfo) => {
+    dispatch({ type: "CHANGE_USER", payload: userInfo });
+    console.log("currentUser.uid", currentUser.uid);
+    console.log("userInfo.uid", userInfo.uid);
+    
+    
+    const chatId =
+    currentUser.uid > userInfo.uid
+      ? currentUser.uid + userInfo.uid
+      : userInfo.uid + currentUser.uid;
+
+  // Reset unread count for current user
+  await updateDoc(doc(db, "userChats", currentUser.uid), {
+    [chatId + ".unreadCount"]: 0,
+  });
   };
 
   const chatEntries = chats && typeof chats === "object" ? Object.entries(chats) : [];
@@ -45,6 +58,10 @@ const Chats = () => {
               <span>{chat[1].userInfo.displayName}</span>
               <p>{chat[1].lastMessage?.text}</p>
             </div>
+
+            {chat[1].unreadCount > 0 && (
+          <div className="unreadBadge">{chat[1].unreadCount}</div>
+        )}
           </div>
         ))
       ): (
