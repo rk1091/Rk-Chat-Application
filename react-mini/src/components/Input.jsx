@@ -12,7 +12,7 @@ import {
 } from "firebase/firestore";
 import { db, storage } from "../firebase";
 import { v4 as uuid } from "uuid";
-import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 const Input = () => {
   const [text, setText] = useState("");
@@ -26,28 +26,29 @@ const Input = () => {
     if (!text && !img) return;
     else if (img) {
       const storageRef = ref(storage, uuid());
-
-      const uploadTask = uploadBytesResumable(storageRef, img);
-
-      uploadTask.on(
-        (error) => {
-          // Handle unsuccessful uploads
-          // setErr(true);
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
-            await updateDoc(doc(db, "chats", data.chatId), {
-              messages: arrayUnion({
-                id: uuid(),
-                text,
-                senderId: currentUser.uid,
-                date: Timestamp.now(),
-                img: downloadURL,
-              }),
-            });
-          });
-        }
-      );
+      // console.log(uuid(),"print uuid");
+      
+      const uploadTask = await uploadBytes(storageRef, img);
+      getDownloadURL(uploadTask.ref).then(async (downloadURL) => {
+        await updateDoc(doc(db, "chats", data.chatId), {
+          messages: arrayUnion({
+            id: uuid(),
+            text,
+            senderId: currentUser.uid,
+            date: Timestamp.now(),
+            img: downloadURL,
+          }),
+        });
+      });
+      // uploadTask.on(
+      //   (error) => {
+      //     // Handle unsuccessful uploads
+      //     // setErr(true);
+      //   },
+      //   () => {
+      //     );
+      //   }
+      // );
 
       setText("");
       setImg(null);
