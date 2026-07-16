@@ -9,36 +9,34 @@ import {
   doc,
   serverTimestamp,
   updateDoc,
+  increment,
 } from "firebase/firestore";
 import { db, storage } from "../firebase";
 import { v4 as uuid } from "uuid";
-import { increment } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 const Input = () => {
   const [text, setText] = useState("");
-  const [audio, setAudio] = useState(null);
+  const [file, setFile] = useState(null); // any non-image attachment (audio, pdf, etc.)
   const [img, setImg] = useState(null);
   const { currentUser } = useContext(AuthContext);
   const { data } = useContext(ChatContext);
 
-
-  function readable(file){
-    // fileName= file.name.slice(0,10);
-    const size =file.size;
-    const fileName = file.name.slice(0, 10) + '...' + file.name.split('.').pop();
+  function readable(f) {
+    const size = f.size;
+    const fileName = f.name.length > 14 ? f.name.slice(0, 10) + "..." + f.name.split(".").pop() : f.name;
     const fileSize =
       size < 1024
         ? `${size} B`
         : size < 1024 * 1024
         ? `${(size / 1024).toFixed(2)} KB`
         : `${(size / (1024 * 1024)).toFixed(2)} MB`;
-    return {fileName, fileSize};
+    return { fileName, fileSize };
   }
+
   async function handleSend() {
-    // console.log(img);
-    // console.log("a",audio);
-    if (!text && !img && !audio) return;
+    if (!text && !img && !file) return;
+
     const newMessage = {
       id: uuid(),
       text,
@@ -49,52 +47,46 @@ const Input = () => {
     if (img) {
       const storageRef = ref(storage, uuid());
       const uploadTask = await uploadBytes(storageRef, img);
-      const downloadURL = await getDownloadURL(uploadTask.ref);
-      newMessage.img = downloadURL;
+      newMessage.img = await getDownloadURL(uploadTask.ref);
     }
-    if (audio) { //non img file for now
-      const storageRef = ref(storage, uuid());
-      const uploadTask = await uploadBytes(storageRef, audio);
-      const downloadURL = await getDownloadURL(uploadTask.ref);
-      console.log(downloadURL);
 
-      newMessage.audio = downloadURL;
+    if (file) {
+      const storageRef = ref(storage, uuid());
+      const uploadTask = await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(uploadTask.ref);
+      const { fileName, fileSize } = readable(file);
+      newMessage.file = {
+        url: downloadURL,
+        name: fileName,
+        size: fileSize,
+        type: file.type,
+      };
     }
-    //sends msg in chat view
-    await updateDoc(doc(db, "chats", data.chatId), 
-    {
-      
-      
+
+    await updateDoc(doc(db, "chats", data.chatId), {
       messages: arrayUnion(newMessage),
     });
 
-    console.log(
-      "jsdabfshd"+"hfbhdfvb"
-    );
-    //sends msg in main db log of both sender and reciever
+    const lastMessageText = file ? `📎 ${file.name}` : text;
     const updates = {
-      [data.chatId + ".lastMessage"]: { text },
+      [data.chatId + ".lastMessage"]: { text: lastMessageText },
       [data.chatId + ".date"]: serverTimestamp(),
     };
     await updateDoc(doc(db, "userChats", currentUser.uid), {
       ...updates,
       [data.chatId + ".unreadCount"]: 0,
     });
-
     await updateDoc(doc(db, "userChats", data.user.uid), {
       ...updates,
       [data.chatId + ".unreadCount"]: increment(1),
     });
 
-    //reset all inputs
     setText("");
     setImg(null);
-    setAudio(null);
+    setFile(null);
   }
 
-
   return (
-    
     <div className="input">
       <input
         type="text"
@@ -102,39 +94,37 @@ const Input = () => {
         onChange={(e) => setText(e.target.value)}
         value={text}
       />
+
+      {file && (
+        <div className="filePreview">
+          📎 {readable(file).fileName} ({readable(file).fileSize})
+          <button type="button" onClick={() => setFile(null)}>✕</button>
+        </div>
+      )}
+
       <div className="send">
-      <input
+        <input
           type="file"
+          accept="audio/*"
           style={{ display: "none" }}
           id="audiofile"
-          onChange={(e) => {
-            const readableText= readable(e.target.files[0]);
-            const readableName= readableText.fileName;
-            const readableSize= readableText.fileSize;
-            // setText(e.target.files[0].name)
-            setText( `${readableName} ${readableSize}`);
-            setAudio(e.target.files[0])
-            console.log(e.target.files);}            
-          }
+          onChange={(e) => setFile(e.target.files[0])}
         />
         <label htmlFor="audiofile">
           <img src={Attach} alt="" />
         </label>
+
         <input
           type="file"
+          accept="image/*"
           style={{ display: "none" }}
           id="file"
-          onChange={(e) =>{
-            console.log("gere",e.target.files);          
-            setImg(e.target.files[0])
-          } }
+          onChange={(e) => setImg(e.target.files[0])}
         />
         <label htmlFor="file">
-          {/* whats label htmlfor for? -> links to id of input  */}
           <img src={Img} alt="" />
-          {/* use . for div's classnames in css files for normal elemenst just names!! like img button but .send  */}
         </label>
-        {/* create another func checkifaudio to check and handle audio msg exe else pass to flow to func handleSend */}
+
         <button onClick={handleSend}>Send</button>
       </div>
     </div>

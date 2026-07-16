@@ -1,8 +1,7 @@
 import React, { useContext, useEffect, useRef } from "react";
-// import Add from "../img/add.jpeg";
-import Attach from "../img/attach.png"
 import { AuthContext } from "../contextAPI/AuthContext";
 import { ChatContext } from "../contextAPI/ChatContext";
+
 const Message = ({ message }) => {
   const { currentUser } = useContext(AuthContext);
   const { data } = useContext(ChatContext);
@@ -13,7 +12,10 @@ const Message = ({ message }) => {
     ref.current?.scrollIntoView({ behavior: "smooth" });
   }, [message]);
 
-  // console.log(message);
+  const formattedTime = message.date?.toDate
+    ? message.date.toDate().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    : "";
+
   return (
     <div
       ref={ref}
@@ -27,12 +29,25 @@ const Message = ({ message }) => {
           }
           alt=""
         />
-        <span>just now</span>
+        <span>{formattedTime}</span>
       </div>
       <div className="messageContent">
-        <p>{message.text}</p>
+        {message.text && <p>{message.text}</p>}
         {message.img && <img src={message.img} alt="" />}
-        {message.audio && <img src={Attach} alt="" className="file"/> }
+
+        {message.file && message.file.type?.startsWith("audio/") && (
+          <audio controls src={message.file.url} className="audioMessage" />
+        )}
+
+        {message.file && !message.file.type?.startsWith("audio/") && (
+          <a href={message.file.url} target="_blank" rel="noreferrer" className="fileMessage">
+            📎 {message.file.name} ({message.file.size})
+          </a>
+        )}
+
+        {message.senderId === currentUser.uid && message.seen && (
+          <span className="seenLabel">Seen</span>
+        )}
       </div>
     </div>
   );
