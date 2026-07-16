@@ -17,73 +17,84 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 const Input = () => {
   const [text, setText] = useState("");
-
+  const [audio, setAudio] = useState(null);
   const [img, setImg] = useState(null);
-
   const { currentUser } = useContext(AuthContext);
   const { data } = useContext(ChatContext);
 
-  const handleSend = async () => {
-    if (!text && !img) return;
-    else if (img) {
+
+  function readable(file){
+    // fileName= file.name.slice(0,10);
+    const size =file.size;
+    const fileName = file.name.slice(0, 10) + '...' + file.name.split('.').pop();
+    const fileSize =
+      size < 1024
+        ? `${size} B`
+        : size < 1024 * 1024
+        ? `${(size / 1024).toFixed(2)} KB`
+        : `${(size / (1024 * 1024)).toFixed(2)} MB`;
+    return {fileName, fileSize};
+  }
+  async function handleSend() {
+    // console.log(img);
+    // console.log("a",audio);
+    if (!text && !img && !audio) return;
+    const newMessage = {
+      id: uuid(),
+      text,
+      senderId: currentUser.uid,
+      date: Timestamp.now(),
+    };
+
+    if (img) {
       const storageRef = ref(storage, uuid());
-      // console.log(uuid(),"print uuid");
-      
       const uploadTask = await uploadBytes(storageRef, img);
-      getDownloadURL(uploadTask.ref).then(async (downloadURL) => {
-        await updateDoc(doc(db, "chats", data.chatId), {
-          messages: arrayUnion({
-            id: uuid(),
-            text,
-            senderId: currentUser.uid,
-            date: Timestamp.now(),
-            img: downloadURL,
-          }),
-        });
-      });
-      // uploadTask.on(
-      //   (error) => {
-      //     // Handle unsuccessful uploads
-      //     // setErr(true);
-      //   },
-      //   () => {
-      //     );
-      //   }
-      // );
-
-      setText("");
-      setImg(null);
-    } else {
-      setText("");
-      setImg(null);
-      await updateDoc(doc(db, "chats", data.chatId), {
-        messages: arrayUnion({
-          id: uuid(),
-          text,
-          senderId: currentUser.uid,
-          date: Timestamp.now(),
-        }),
-      });
+      const downloadURL = await getDownloadURL(uploadTask.ref);
+      newMessage.img = downloadURL;
     }
+    if (audio) { //non img file for now
+      const storageRef = ref(storage, uuid());
+      const uploadTask = await uploadBytes(storageRef, audio);
+      const downloadURL = await getDownloadURL(uploadTask.ref);
+      console.log(downloadURL);
 
-    await updateDoc(doc(db, "userChats", currentUser.uid), {
-      [data.chatId + ".lastMessage"]: {
-        text,
-      },
+      newMessage.audio = downloadURL;
+    }
+    //sends msg in chat view
+    await updateDoc(doc(db, "chats", data.chatId), 
+    {
+      
+      
+      messages: arrayUnion(newMessage),
+    });
+
+    console.log(
+      "jsdabfshd"+"hfbhdfvb"
+    );
+    //sends msg in main db log of both sender and reciever
+    const updates = {
+      [data.chatId + ".lastMessage"]: { text },
       [data.chatId + ".date"]: serverTimestamp(),
+    };
+    await updateDoc(doc(db, "userChats", currentUser.uid), {
+      ...updates,
       [data.chatId + ".unreadCount"]: 0,
     });
 
     await updateDoc(doc(db, "userChats", data.user.uid), {
-      [data.chatId + ".lastMessage"]: {
-        text,
-      },
-      [data.chatId + ".date"]: serverTimestamp(),
+      ...updates,
       [data.chatId + ".unreadCount"]: increment(1),
     });
-  };
+
+    //reset all inputs
+    setText("");
+    setImg(null);
+    setAudio(null);
+  }
+
 
   return (
+    
     <div className="input">
       <input
         type="text"
@@ -92,15 +103,34 @@ const Input = () => {
         value={text}
       />
       <div className="send">
-        <img src={Attach} alt="" />
+      <input
+          type="file"
+          style={{ display: "none" }}
+          id="audiofile"
+          onChange={(e) => {
+            const readableText= readable(e.target.files[0]);
+            const readableName= readableText.fileName;
+            const readableSize= readableText.fileSize;
+            // setText(e.target.files[0].name)
+            setText( `${readableName} ${readableSize}`);
+            setAudio(e.target.files[0])
+            console.log(e.target.files);}            
+          }
+        />
+        <label htmlFor="audiofile">
+          <img src={Attach} alt="" />
+        </label>
         <input
           type="file"
           style={{ display: "none" }}
           id="file"
-          onChange={(e) => setImg(e.target.files[0])}
+          onChange={(e) =>{
+            console.log("gere",e.target.files);          
+            setImg(e.target.files[0])
+          } }
         />
         <label htmlFor="file">
-          {/* whats label htmlfor for? opens up files?  */}
+          {/* whats label htmlfor for? -> links to id of input  */}
           <img src={Img} alt="" />
           {/* use . for div's classnames in css files for normal elemenst just names!! like img button but .send  */}
         </label>

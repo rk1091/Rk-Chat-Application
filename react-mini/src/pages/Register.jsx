@@ -33,6 +33,8 @@ const Register = () => {
 
       const uploadTask = await uploadBytes(storageRef, file);
       console.log(uploadTask," upload task");
+      console.log("here");
+        
       // uploadTask.snapshot
       getDownloadURL(uploadTask.ref).then(async (downloadURL) => {
         console.log(downloadURL);

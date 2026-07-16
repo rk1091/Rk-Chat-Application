@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useRef } from "react";
-import Add from "../img/add.jpeg";
+// import Add from "../img/add.jpeg";
+import Attach from "../img/attach.png"
 import { AuthContext } from "../contextAPI/AuthContext";
 import { ChatContext } from "../contextAPI/ChatContext";
 const Message = ({ message }) => {
@@ -31,6 +32,7 @@ const Message = ({ message }) => {
       <div className="messageContent">
         <p>{message.text}</p>
         {message.img && <img src={message.img} alt="" />}
+        {message.audio && <img src={Attach} alt="" className="file"/> }
       </div>
     </div>
   );
