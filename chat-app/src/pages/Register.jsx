@@ -3,7 +3,7 @@ import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import Add from "../img/addAvatar.png";
 import { auth, db, storage } from "../firebase";
 import { useState } from "react";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { ref, uploadBytesResumable, uploadBytes,getDownloadURL } from "firebase/storage";
 import { doc, setDoc } from "firebase/firestore";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -27,37 +27,62 @@ const Register = () => {
     // console.log(email, password);
     try {
       const res = await createUserWithEmailAndPassword(auth, email, password);
-      // console.log(res);
+      console.log(res.user);
+      // navigate("/");
+      const storageRef = ref(storage, displayName+".jpg");
 
-      const storageRef = ref(storage, displayName);
-
-      const uploadTask = uploadBytesResumable(storageRef, file);
-
-      uploadTask.on(
-        (error) => {
-          // Handle unsuccessful uploads
-          setErr(true);
-        },
-        () => {
-          // Handle successful uploads on complete
-          // For instance, get the download URL: https://firebasestorage.googleapis.com/...
-          getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
-            await updateProfile(res.user, {
-              displayName,
-              photoURL: downloadURL,
-            });
-            await setDoc(doc(db, "users", res.user.uid), {
-              uid: res.user.uid,
-              displayName,
-              email,
-              photoURL: downloadURL,
-            });
-            await setDoc(doc(db, "userChats", res.user.uid), {});
-            navigate("/");
-          });
-        }
-      );
+      const uploadTask = await uploadBytes(storageRef, file);
+      console.log(uploadTask," upload task");
+      console.log("here");
+        
+      // uploadTask.snapshot
+      getDownloadURL(uploadTask.ref).then(async (downloadURL) => {
+        console.log(downloadURL);
+        await updateProfile(res.user, {
+          displayName,
+          photoURL: downloadURL,
+        });
+        await setDoc(doc(db, "users", res.user.uid), {
+          uid: res.user.uid,
+          displayName,
+          email,
+          photoURL: downloadURL,
+        });
+        await setDoc(doc(db, "userChats", res.user.uid), {});
+        navigate("/");
+      });
+      // uploadTask.on(
+      //   (error) => {
+      //     // Handle unsuccessful uploads
+      //     console.log(error);
+          
+      //     setErr(true);
+      //   },
+      //   () => {
+      //     // Handle successful uploads on complete
+      //     // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+      //     console.log("we r here");
+          
+      //     getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+      //       console.log(downloadURL);
+      //       await updateProfile(res.user, {
+      //         displayName,
+      //         photoURL: downloadURL,
+      //       });
+      //       await setDoc(doc(db, "users", res.user.uid), {
+      //         uid: res.user.uid,
+      //         displayName,
+      //         email,
+      //         photoURL: downloadURL,
+      //       });
+      //       await setDoc(doc(db, "userChats", res.user.uid), {});
+      //       navigate("/");
+      //     });
+      //   }
+      // );
     } catch (err) {
+      console.log("err is ", err);
+      
       setErr(true);
       // console.log(err.message.contains("email-already"));
     }
